@@ -35,3 +35,9 @@ console.time("duration");
 var part = data.take(8).partition(2);
 part.item1.foreach(x => console.log);
 console.timeEnd("duration");
+
+console.time("duration");
+var a = Slack.from([1,2,3]);
+var b = Slack.from([4,5,6]);
+a.concat(b).foreach(x => console.log(x));
+console.timeEnd("duration");

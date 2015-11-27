@@ -104,7 +104,7 @@ class LazySource {
 					for (let e of s.apply()) {
 						yield e;
 					}
-					for (let e of other.apply()) {
+					for (let e of other.source.apply()) {
 						yield e;
 					}
 				}
