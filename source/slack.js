@@ -7,6 +7,26 @@ export default class Slack {
 	static range(start, end) {
 		return new LazySource(new Range(start, end));
 	}
+	
+	static generator(initial, next){
+		return new LazySource(new Generator(initial,next));
+	}
+}
+
+class Generator{
+	constructor(initial, next) {
+		this.initial = initial;
+		this.next = next;
+	}
+
+	* apply() {
+		let element = this.initial;
+		
+		for(;;){
+			yield element;
+			element = this.next(element);
+		}
+	}
 }
 
 class Range {
@@ -68,6 +88,63 @@ class LazySource {
 							yield e;
 						}
 					}
+				}
+			}
+		});
+
+		this.source = lazy;
+		return lazy;
+	}
+	
+	concat(other) {
+		var s = this.source;
+		var lazy = Object.create(this, {
+			apply: {
+				value: function* () {
+					for (let e of s.apply()) {
+						yield e;
+					}
+					for (let e of other.apply()) {
+						yield e;
+					}
+				}
+			}
+		});
+
+		this.source = lazy;
+		return lazy;
+	}
+	
+	flatMapLazy(f) {
+		var s = this.source;
+		var lazy = Object.create(this, {
+			apply: {
+				value: function* () {
+					for (let e of s.apply()) {
+						for(let i of e.apply()){
+							yield i;
+						}
+					}
+
+				}
+			}
+		});
+
+		this.source = lazy;
+		return lazy;
+	}
+	
+	flatMap(f) {
+		var s = this.source;
+		var lazy = Object.create(this, {
+			apply: {
+				value: function* () {
+					for (let e of s.apply()) {
+						for(let i of e){
+							yield i;
+						}
+					}
+
 				}
 			}
 		});
