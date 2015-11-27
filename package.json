@@ -1,0 +1,29 @@
+{
+  "name": "slack",
+  "version": "1.0.0",
+  "description": "Functional JS Library heavily inspired by LINQ",
+  "main": "lib/slack.js",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/loosechainsaw/Slack.git"
+  },
+  "keywords": [
+    "Functional",
+    "LINQ"
+  ],
+  "author": "Blair Davidson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/loosechainsaw/Slack/issues"
+  },
+  "homepage": "https://github.com/loosechainsaw/Slack#readme",
+  "devDependencies": {
+    "babel": "^6.1.18",
+    "babel-cli": "^6.2.0",
+    "babel-polyfill": "^6.2.0",
+    "babel-preset-es2015": "^6.1.18"
+  }
+}

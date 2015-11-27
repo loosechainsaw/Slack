@@ -1,0 +1,27 @@
+{
+	"version": "0.1.0",
+	"configurations": [
+		{
+			"name": "Launch playground/scratchpad.js",
+			"type": "node",
+			"program": "playground/scratchpad.js",
+			"stopOnEntry": false,
+			"args": [],
+			"cwd": ".",
+			"runtimeExecutable": null,
+			"runtimeArgs": ["--nolazy"],
+			"env": {
+				"NODE_ENV": "development"
+			},
+			"sourceMaps": false,
+			"outDir": null
+		},
+		{
+			"name": "Attach",
+			"type": "node",
+			"address": "localhost",
+			"port": 5858,
+			"sourceMaps": false
+		}
+	]
+}
