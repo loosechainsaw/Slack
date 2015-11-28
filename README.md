@@ -26,6 +26,11 @@ you must call enumerate at the end if you wish to write a for of loop and extrac
 
 ##Functions
 
+|                                 |                                                                                           |
+|**Method**                       |**Description**                                                                            |
+|                                 |                                                                                           |
+|                                 |                                                                                           |
+|                                 |                                                                                           |
 
 
 
