@@ -12,7 +12,7 @@ Everything works on a LazySource object. This is private to the module however w
 ```javascript
 var array = [1,2,3,4,5,6,7,8,9,10];
 var source = Slack.from(array);
-
+```
 Now that we have a source object we can manipulate the underlying array lazily with the large set of provided methods on LazySource.
 
 ```javascript
@@ -20,7 +20,7 @@ var data = source.filter(x => x > 5).map(x => x * 10).take(2).enumerate();
 for(let element of data){
   console.log(element);
 }
-
+```
 In the example about we filter out all elements less tan 5 and then multiply them by 10 and take the first 2;
 you must call enumerate at the end if you wish to write a for of loop and extract each element and manipulate it.
 
