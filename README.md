@@ -1,5 +1,7 @@
 #Slack JS
 
+[![Build Status](https://travis-ci.org/loosechainsaw/Slack.svg)](https://travis-ci.org/loosechainsaw/Slack)
+
 ##Purpose
 Provide javascript developers with a great functional set of extensions for manipulating, querying and projecting data. Heavily inspired by LINQ.
 
