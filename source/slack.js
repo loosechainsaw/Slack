@@ -155,7 +155,7 @@ class LazySource {
 	}
 	
 	flatMap(f) {
-		var s = this.source;
+		var s = this;
 		var lazy = Object.create(this, {
 			apply: {
 				value: function* () {
@@ -169,24 +169,23 @@ class LazySource {
 			}
 		});
 
-		this.source = lazy;
 		return lazy;
 	}
 
 	foreach(f) {
-		for (let e of this.source.apply()) {
+		for (let e of this.apply()) {
 			f(e);
 		}
 	}
 
 	take(n) {
 
-		var s = this.source;
+		var self = this;
 		var lazy = Object.create(this, {
 			apply: {
 				value: function* () {
 					var total = 0;
-					for (let e of s.apply()) {
+					for (let e of self.apply()) {
 						if (++total <= n) {
 							yield e;
 						}
@@ -195,18 +194,17 @@ class LazySource {
 			}
 		});
 
-		this.source = lazy;
 		return lazy;
 	}
 
 	skip(n) {
 
-		var s = this.source;
+		var self = this;
 		var lazy = Object.create(this, {
 			apply: {
 				value: function* () {
 					var total = 0;
-					for (let e of s.apply()) {
+					for (let e of self.apply()) {
 						if (++total > n) {
 							yield e;
 						}
@@ -215,7 +213,6 @@ class LazySource {
 			}
 		});
 
-		this.source = lazy;
 		return lazy;
 
 	}
@@ -256,7 +253,7 @@ class LazySource {
 	
 	toMap(k,d){
 		var map = new Map();
-		for (let e of this.source.apply()) {
+		for (let e of this.apply()) {
 			map.set(f(e),d(e));
 		}
 		return map;
@@ -271,20 +268,20 @@ class LazySource {
 	}
 
 	* enumerate() {
-		for (let e of this.source.apply()) {
+		for (let e of this.apply()) {
 			yield e;
 		}
 	}
 
 	first() {
-		for (let e of this.source.apply()) {
+		for (let e of this.apply()) {
 			return e;
 		}
 		throw new Error("No items in list");
 	}
 
 	firstOrElse(d) {
-		for (let e of this.source.apply()) {
+		for (let e of this.apply()) {
 			return e;
 		}
 		return d;
@@ -292,7 +289,7 @@ class LazySource {
 	
 	last() {
 		let element;
-		for (let e of this.source.apply()) {
+		for (let e of this.apply()) {
 			element = e;
 		}
 		
@@ -304,7 +301,7 @@ class LazySource {
 	
 	lastOrElse(d) {
 		let element;
-		for (let e of this.source.apply()) {
+		for (let e of this.apply()) {
 			element = e;
 		}
 		
@@ -315,7 +312,7 @@ class LazySource {
 	}
 
 	foldl(f, identity) {
-		for (let e of this.source.apply()) {
+		for (let e of this.apply()) {
 			identity = f(identity, e);
 		}
 		return identity;
@@ -330,7 +327,7 @@ class LazySource {
 	}
 
 	any(f) {
-		for (let e of this.source.apply()) {
+		for (let e of this.apply()) {
 			if (f(e))
 				return true;
 		}
@@ -338,7 +335,7 @@ class LazySource {
 	}
 
 	all(f) {
-		for (let e of this.source.apply()) {
+		for (let e of this.apply()) {
 			if (!f(e))
 				return false;
 		}
@@ -347,7 +344,7 @@ class LazySource {
 
 	countWhere(f) {
 		let total = 0;
-		for (let e of this.source.apply()) {
+		for (let e of this.apply()) {
 			if (f(e)) {
 				++total;
 			}
@@ -357,7 +354,7 @@ class LazySource {
 
 	minimum() {
 		var minimum;
-		for (let e of this.source.apply()) {
+		for (let e of this.apply()) {
 			if (!minimum) {
 				minimum = e;
 				continue;
@@ -380,7 +377,7 @@ class LazySource {
 
 	maximum() {
 		var maximum;
-		for (let e of this.source.apply()) {
+		for (let e of this.apply()) {
 			if (!maximum) {
 				maximum = e;
 				continue;
@@ -403,7 +400,7 @@ class LazySource {
 
 	size() {
 		let n = 0;
-		for (let v of this.source.apply()) {
+		for (let v of this.apply()) {
 			n += 1;
 		}
 		return n;
