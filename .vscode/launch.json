@@ -2,26 +2,24 @@
 	"version": "0.1.0",
 	"configurations": [
 		{
-			"name": "Launch playground/scratchpad.js",
+			"name": "Scratchpad",
 			"type": "node",
-			"program": "playground/scratchpad.js",
+			"program": "experiments/scratch.js",
 			"stopOnEntry": false,
 			"args": [],
 			"cwd": ".",
 			"runtimeExecutable": null,
-			"runtimeArgs": ["--nolazy"],
-			"env": {
-				"NODE_ENV": "development"
-			},
-			"sourceMaps": false,
-			"outDir": null
+			"env": { "NODE_ENV": "production"}
 		},
 		{
-			"name": "Attach",
+			"name": "Unit Tests",
 			"type": "node",
-			"address": "localhost",
-			"port": 5858,
-			"sourceMaps": false
+			"program": "node_modules/mocha/bin/_mocha",
+			"stopOnEntry": false,
+			"args": ["tests"],
+			"cwd": ".",
+			"runtimeExecutable": null,
+			"env": { "NODE_ENV": "production"}
 		}
 	]
 }

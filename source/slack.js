@@ -59,31 +59,35 @@ class LazySource {
 	constructor(source) {
 		this.source = source;
 	}
+	
+	* apply(){
+		for (let e of this.source.apply()) {
+			yield e;
+		}
+	}
 
 	map(f) {
 
-		var s = this.source;
+		var self = this;
 		var lazy = Object.create(this, {
 			apply: {
 				value: function* () {
-					for (let e of s.apply()) {
+					for (let e of self.apply()) {
 						yield f(e);
 					}
 				}
 			}
 		});
 
-		this.source = lazy;
 		return lazy;
-
 	}
 
 	filter(f) {
-		var s = this.source;
+		var self = this;
 		var lazy = Object.create(this, {
 			apply: {
 				value: function* () {
-					for (let e of s.apply()) {
+					for (let e of self.apply()) {
 						if (f(e)) {
 							yield e;
 						}
@@ -92,26 +96,42 @@ class LazySource {
 			}
 		});
 
-		this.source = lazy;
 		return lazy;
 	}
 	
 	concat(other) {
-		var s = this.source;
+		var self = this;
 		var lazy = Object.create(this, {
 			apply: {
 				value: function* () {
-					for (let e of s.apply()) {
+					for (let e of self.apply()) {
 						yield e;
 					}
-					for (let e of other.source.apply()) {
+					for (let e of other) {
 						yield e;
 					}
 				}
 			}
 		});
 
-		this.source = lazy;
+		return lazy;
+	}
+	
+	concatLazy(other) {
+		var self = this;
+		var lazy = Object.create(this, {
+			apply: {
+				value: function* () {
+					for (let e of self.apply()) {
+						yield e;
+					}
+					for (let e of other.apply()) {
+						yield e;
+					}
+				}
+			}
+		});
+
 		return lazy;
 	}
 	
@@ -121,7 +141,7 @@ class LazySource {
 			apply: {
 				value: function* () {
 					for (let e of s.apply()) {
-						for(let i of e.apply()){
+						for(let i of e.source.apply()){
 							yield i;
 						}
 					}
@@ -233,10 +253,18 @@ class LazySource {
 		return result;
 
 	}
+	
+	toMap(k,d){
+		var map = new Map();
+		for (let e of this.source.apply()) {
+			map.set(f(e),d(e));
+		}
+		return map;
+	}
 
 	toArray() {
 		var results = [];
-		for (let e of this.source.apply()) {
+		for (let e of this.apply()) {
 			results.push(e);
 		}
 		return results;
@@ -261,12 +289,44 @@ class LazySource {
 		}
 		return d;
 	}
+	
+	last() {
+		let element;
+		for (let e of this.source.apply()) {
+			element = e;
+		}
+		
+		if(element)
+			return element;
+			
+		throw new Error("No items in list");
+	}
+	
+	lastOrElse(d) {
+		let element;
+		for (let e of this.source.apply()) {
+			element = e;
+		}
+		
+		if(element)
+			return element;
+			
+		return d;
+	}
 
 	foldl(f, identity) {
 		for (let e of this.source.apply()) {
 			identity = f(identity, e);
 		}
 		return identity;
+	}
+	
+	sum(){
+		return this.foldl((x,y)=>x + y, 0);
+	}
+	
+	product(){
+		return this.foldl((x,y)=>x * y, 1);
 	}
 
 	any(f) {
