@@ -30,7 +30,7 @@ you must call enumerate at the end if you wish to write a for of loop and extrac
 
 |**Method**                       |**Description**                                                                            |
 |---------------------------------|-------------------------------------------------------------------------------------------|
-|                                 |                                                                                           |
+| filter(f)                       |Selects only the elements that match the predicate f                                       |
 |                                 |                                                                                           |
 
 
