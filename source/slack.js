@@ -150,7 +150,6 @@ class LazySource {
 			}
 		});
 
-		this.source = lazy;
 		return lazy;
 	}
 	
@@ -165,6 +164,28 @@ class LazySource {
 						}
 					}
 
+				}
+			}
+		});
+
+		return lazy;
+	}
+	
+	distinct(f){
+		var s = this;
+		var added = new Map();
+		var lazy = Object.create(this, {
+			apply: {
+				value: function* () {
+					for (let e of s.apply()) {
+						var selector = f(e);
+						if(!added.get(selector)){
+							added.set(selector,selector);
+						}
+					}
+					for (let e of added.values()) {
+						yield e;
+					}
 				}
 			}
 		});
