@@ -28,12 +28,18 @@ you must call enumerate at the end if you wish to write a for of loop and extrac
 
 ##Functions
 
-|                                 |                                                                                           |
-|**Method**                       |**Description**                                                                            |
-|                                 |                                                                                           |
-|                                 |                                                                                           |
-|                                 |                                                                                           |
-
+|**Method**                       |**Description**                                                                             |
+|---------------------------------|--------------------------------------------------------------------------------------------|
+| filter(f)                       | Selects only the elements that match the predicate f                                       |
+| map(f)                          | Transforms each element with the mapping function f                                        |
+| concat(other)                   | Combines another array to the current stream in a lazy fashion                             |
+| concatLazy(other)               | Combines another lazy sequence with the current sequence in a lazy fashion                 |
+| skip(n)                         | Selects a new sequence with n items skipped                                                |
+| take(n)                         | Selects a new sequence with n items choosen                                                |
+| any(f)                          | Returns whether any element in the sequence matches the predicate f                        |
+| all(f)                          | Returns whether all elements in the sequence matche the predicate f                        |
+| foreach(f)                      | Executes the function f on each element in the sequence                                    |
+| flatMap(f)                      | Returns a flattened sequence from a nested sequence using a flattening function f          |
 
 
 
