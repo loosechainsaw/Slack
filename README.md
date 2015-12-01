@@ -31,8 +31,9 @@ you must call enumerate at the end if you wish to write a for of loop and extrac
 |**Method**                       |**Description**                                                                            |
 |---------------------------------|-------------------------------------------------------------------------------------------|
 | filter(f)                       |Selects only the elements that match the predicate f                                       |
-|                                 |                                                                                           |
-
+| map(f)                          |Transforms each element with the mapping function f                                        |
+| concat(other)                   |Combines another array to the current stream in a lazy fashion                             |
+| concatLazy(other)               |Combines another lazy sequence with the current sequence in a lazy fashion                 |
 
 
 
