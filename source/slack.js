@@ -219,13 +219,12 @@ class LazySource {
 
 	partition(n) {
 		let self = this;
-		let s = self.source;
 		let result = {
 			item1: Object.create(self, {
 				apply: {
 					value: function* () {
 						let total = 0;
-						for (let e of s.apply()) {
+						for (let e of self.apply()) {
 							if (++total <= n) {
 								yield e;
 							}
@@ -236,8 +235,8 @@ class LazySource {
 				apply: {
 					value: function* () {
 						let total = 0;
-						for (let e of s.apply()) {
-							if (++total >= n) {
+						for (let e of self.apply()) {
+							if (++total > n) {
 								yield e;
 							}
 						}
@@ -254,7 +253,7 @@ class LazySource {
 	toMap(k,d){
 		var map = new Map();
 		for (let e of this.apply()) {
-			map.set(f(e),d(e));
+			map.set(k(e),d(e));
 		}
 		return map;
 	}
