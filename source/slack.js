@@ -7,25 +7,41 @@ export default class Slack {
 	static range(start, end) {
 		return new LazySource(new Range(start, end));
 	}
-	
-	static generator(initial, next){
-		return new LazySource(new Generator(initial,next));
+
+	static generate(initial, advance, next) {
+		return new LazySource(new Generator(initial, advance, next));
+	}
+
+	static throw(error) {
+		return new LazySource(new Throw(error));
+	}
+
+	static return(value) {
+		return this.from([value]);
+	}
+
+	static repeat(value) {
+		return new LazySource(new Repeat(value));
 	}
 }
 
-class Generator{
-	constructor(initial, next) {
+class Generator {
+	constructor(initial, advance, next) {
 		this.initial = initial;
+		this.advance = advance;
 		this.next = next;
 	}
 
 	* apply() {
 		let element = this.initial;
-		
-		for(;;){
-			yield element;
+		yield element;
+
+		while (this.advance(element)) {
+
 			element = this.next(element);
+			yield element;
 		}
+
 	}
 }
 
@@ -38,6 +54,28 @@ class Range {
 	* apply() {
 		for (let i = this.from; i <= this.to; ++i) {
 			yield i;
+		}
+	}
+}
+
+class Throw {
+	constructor(error) {
+		this.error = error;
+	}
+
+	* apply() {
+		throw this.error;
+	}
+}
+
+class Repeat {
+	constructor(value) {
+		this.value = value;
+	}
+
+	* apply() {
+		for (; ;) {
+			yield this.value;
 		}
 	}
 }
@@ -59,8 +97,8 @@ class LazySource {
 	constructor(source) {
 		this.source = source;
 	}
-	
-	* apply(){
+
+	* apply() {
 		for (let e of this.source.apply()) {
 			yield e;
 		}
@@ -98,7 +136,7 @@ class LazySource {
 
 		return lazy;
 	}
-	
+
 	concat(other) {
 		var self = this;
 		var lazy = Object.create(this, {
@@ -116,7 +154,7 @@ class LazySource {
 
 		return lazy;
 	}
-	
+
 	concatLazy(other) {
 		var self = this;
 		var lazy = Object.create(this, {
@@ -134,14 +172,14 @@ class LazySource {
 
 		return lazy;
 	}
-	
+
 	flatMapLazy(f) {
 		var s = this.source;
 		var lazy = Object.create(this, {
 			apply: {
 				value: function* () {
 					for (let e of s.apply()) {
-						for(let i of e.source.apply()){
+						for (let i of e.source.apply()) {
 							yield i;
 						}
 					}
@@ -152,14 +190,14 @@ class LazySource {
 
 		return lazy;
 	}
-	
+
 	flatMap(f) {
 		var s = this;
 		var lazy = Object.create(this, {
 			apply: {
 				value: function* () {
 					for (let e of s.apply()) {
-						for(let i of e){
+						for (let i of e) {
 							yield i;
 						}
 					}
@@ -170,8 +208,8 @@ class LazySource {
 
 		return lazy;
 	}
-	
-	distinct(f){
+
+	distinct(f) {
 		var s = this;
 		var added = new Map();
 		var lazy = Object.create(this, {
@@ -179,12 +217,32 @@ class LazySource {
 				value: function* () {
 					for (let e of s.apply()) {
 						var selector = f(e);
-						if(!added.get(selector)){
-							added.set(selector,selector);
+						if (!added.get(selector)) {
+							added.set(selector, selector);
 						}
 					}
 					for (let e of added.values()) {
 						yield e;
+					}
+				}
+			}
+		});
+
+		return lazy;
+	}
+
+	distinctUntilChanged(f) {
+		let self = this;
+		let last = undefined;
+		let lazy = Object.create(this, {
+			apply: {
+				value: function* () {
+					for (let e of self.apply()) {
+						var selector = f(e);
+						if (last != selector) {
+							last = selector;
+							yield last;
+						}
 					}
 				}
 			}
@@ -252,7 +310,7 @@ class LazySource {
 						}
 					}
 				}
-			}),item2: Object.create(self, {
+			}), item2: Object.create(self, {
 				apply: {
 					value: function* () {
 						let total = 0;
@@ -270,11 +328,11 @@ class LazySource {
 		return result;
 
 	}
-	
-	toMap(k,d){
+
+	toMap(k, d) {
 		var map = new Map();
 		for (let e of this.apply()) {
-			map.set(k(e),d(e));
+			map.set(k(e), d(e));
 		}
 		return map;
 	}
@@ -306,28 +364,28 @@ class LazySource {
 		}
 		return d;
 	}
-	
+
 	last() {
 		let element;
 		for (let e of this.apply()) {
 			element = e;
 		}
-		
-		if(element)
+
+		if (element)
 			return element;
-			
+
 		throw new Error("No items in list");
 	}
-	
+
 	lastOrElse(d) {
 		let element;
 		for (let e of this.apply()) {
 			element = e;
 		}
-		
-		if(element)
+
+		if (element)
 			return element;
-			
+
 		return d;
 	}
 
@@ -337,13 +395,116 @@ class LazySource {
 		}
 		return identity;
 	}
-	
-	sum(){
-		return this.foldl((x,y)=>x + y, 0);
+
+	scan(f, identity) {
+
+		var self = this;
+		var lazy = Object.create(this, {
+			apply: {
+				value: function* () {
+					let accum = identity;
+					for (let e of self.apply()) {
+						accum = f(accum, e);
+						yield accum;
+					}
+				}
+			}
+		});
+
+		return lazy;
 	}
-	
-	product(){
-		return this.foldl((x,y)=>x * y, 1);
+
+	groupBy(f) {
+		var self = this;
+		var lazy = Object.create(this, {
+			apply: {
+				value: function* () {
+					var map = new Map();
+					for (let e of self.apply()) {
+						let key = f(e);
+
+						if (!map.has(key)) {
+							map.set(key, [e]);
+						} else {
+							var v = map.get(key);
+							map.set(key, v.push(e));
+						}
+					}
+
+					for (let [key, value] of map.entries()) {
+						yield { key, value };
+					}
+				}
+			}
+		});
+
+		return lazy;
+	}
+
+	onErrorResumeNext() {
+		var self = this;
+		var lazy = Object.create(this, {
+			apply: {
+				value: function* () {
+					var generator = self.apply();
+
+					while (true) {
+						try {
+							var obj = generator.next();
+
+							if (obj.done)
+								return;
+
+							yield obj.value;
+
+						} catch (error) {
+
+						}
+					}
+				}
+			}
+		});
+
+		return lazy;
+	}
+
+	catch(other) {
+		var self = this;
+		var lazy = Object.create(this, {
+			apply: {
+				value: function* () {
+
+					var generator = self.apply();
+
+					while (true) {
+						try {
+							var obj = generator.next();
+
+							if (obj.done)
+								return;
+
+							yield obj.value;
+
+						} catch (error) {
+							for (let z of other.apply()) {
+								yield z; self.apply()
+							}
+						}
+					}
+
+				}
+			}
+		});
+
+		return lazy;
+	}
+
+	sum() {
+		return this.foldl((x, y) => x + y, 0);
+	}
+
+	product() {
+		return this.foldl((x, y) => x * y, 1);
 	}
 
 	any(f) {
