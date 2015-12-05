@@ -1,6 +1,6 @@
 {
   "name": "slack-js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Functional JS Library heavily inspired by LINQ",
   "main": "lib/slack.js",
   "scripts": {
