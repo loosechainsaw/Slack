@@ -421,18 +421,18 @@ class LazySource {
 				value: function* () {
 					var map = new Map();
 					for (let e of self.apply()) {
-						let key = f(e);
+						let k = f(e);
 
-						if (!map.has(key)) {
-							map.set(key, [e]);
+						if (!map.has(k)) {
+							map.set(k, [e]);
 						} else {
-							var v = map.get(key);
-							map.set(key, v.push(e));
+							var v = map.get(k);
+							v.push(e);
 						}
 					}
 
-					for (let [key, value] of map.entries()) {
-						yield { key, value };
+					for (let [key,elements] of map.entries()) {
+						yield { key, elements };
 					}
 				}
 			}
