@@ -43,6 +43,10 @@ class Generator {
 		}
 
 	}
+	
+	[Symbol.iterator](){
+		return this.apply();
+	}
 }
 
 class Range {
@@ -56,6 +60,10 @@ class Range {
 			yield i;
 		}
 	}
+	
+	[Symbol.iterator](){
+		return this.apply();
+	}
 }
 
 class Throw {
@@ -66,6 +74,11 @@ class Throw {
 	* apply() {
 		throw this.error;
 	}
+	
+	[Symbol.iterator](){
+		return this.apply();
+	}
+	
 }
 
 class Repeat {
@@ -77,6 +90,10 @@ class Repeat {
 		for (; ;) {
 			yield this.value;
 		}
+	}
+	
+	[Symbol.iterator](){
+		return this.apply();
 	}
 }
 
@@ -90,6 +107,10 @@ class Stream {
 			yield element;
 		}
 	}
+	
+	[Symbol.iterator](){
+		return this.apply();
+	}
 }
 
 class LazySource {
@@ -102,6 +123,10 @@ class LazySource {
 		for (let e of this.source.apply()) {
 			yield e;
 		}
+	}
+	
+	[Symbol.iterator](){
+		return this.apply();
 	}
 
 	map(f) {
@@ -256,6 +281,60 @@ class LazySource {
 			f(e);
 		}
 	}
+	
+	union(other){
+		var self = this;
+		var lazy = Object.create(this, {
+			apply: {
+				value: function* () {
+					var added = new Map();
+					for (let e of self.apply()) {
+
+						if (!added.get(e)) {
+							added.set(e, e);
+						}
+					}
+					for (let e of other) {
+						if (!added.get(e)) {
+							added.set(e, e);
+						}
+					}
+					for (let e of added.values()) {
+						yield e;
+					}
+				}
+			}
+		});
+
+		return lazy;
+	}
+	
+	unionLazy(other){
+		var self = this;
+		var lazy = Object.create(this, {
+			apply: {
+				value: function* () {
+					var added = new Map();
+					for (let e of self.apply()) {
+
+						if (!added.get(e)) {
+							added.set(e, e);
+						}
+					}
+					for (let e of other.apply()) {
+						if (!added.get(e)) {
+							added.set(e, e);
+						}
+					}
+					for (let e of added.values()) {
+						yield e;
+					}
+				}
+			}
+		});
+
+		return lazy;
+	}
 
 	take(n) {
 
@@ -275,6 +354,26 @@ class LazySource {
 
 		return lazy;
 	}
+	
+	takeWhile(f) {
+
+		var self = this;
+		var lazy = Object.create(this, {
+			apply: {
+				value: function* () {
+					for (let e of self.apply()) {
+						if(f(e))
+							yield e;
+						else
+							return;
+					}
+				}
+			}
+		});
+
+		return lazy;
+
+	}
 
 	skip(n) {
 
@@ -287,6 +386,29 @@ class LazySource {
 						if (++total > n) {
 							yield e;
 						}
+					}
+				}
+			}
+		});
+
+		return lazy;
+
+	}
+	
+	skipWhile(f) {
+
+		var self = this;
+		var lazy = Object.create(this, {
+			apply: {
+				value: function* () {
+					let ignore = true;
+					for (let e of self.apply()) {
+						
+						if(ignore)
+							ignore = f(e);
+						
+						if(!ignore)
+							yield e;
 					}
 				}
 			}
@@ -505,6 +627,16 @@ class LazySource {
 
 	product() {
 		return this.foldl((x, y) => x * y, 1);
+	}
+	
+	avg(){
+		let total = 0;
+		let count = 0;
+		for (let e of this.apply()) {
+			total += e;
+			count += 1;
+		}
+		return total / count;
 	}
 
 	any(f) {
